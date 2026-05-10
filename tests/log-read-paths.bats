@@ -43,3 +43,8 @@ teardown() {
     [ "$(head -1 "$CLAUDE_READ_LOG")" = "/a" ]
     [ "$(tail -1 "$CLAUDE_READ_LOG")" = "/c" ]
 }
+
+@test "fail-open on malformed JSON input" {
+    run bash "$REPO_ROOT/hooks/log-read-paths.sh" <<< "not-json"
+    assert_success
+}

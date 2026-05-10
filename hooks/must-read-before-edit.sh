@@ -8,8 +8,8 @@
 set -euo pipefail
 
 PAYLOAD=$(cat -)
-TOOL=$(jq -r '.tool_name // empty' <<< "$PAYLOAD")
-FILE=$(jq -r '.tool_input.file_path // .tool_input.filePath // empty' <<< "$PAYLOAD")
+TOOL=$(jq -r '.tool_name // empty' <<< "$PAYLOAD" 2>/dev/null) || exit 0
+FILE=$(jq -r '.tool_input.file_path // .tool_input.filePath // empty' <<< "$PAYLOAD" 2>/dev/null) || exit 0
 
 # Only act on Edit. Write to a non-existing file is creation; allow it.
 [ "$TOOL" = "Edit" ] || exit 0
@@ -18,6 +18,8 @@ FILE=$(jq -r '.tool_input.file_path // .tool_input.filePath // empty' <<< "$PAYL
 LOG="${CLAUDE_READ_LOG:-$HOME/.claude/state/reads.log}"
 
 # If the log doesn't exist yet, fail-open (first session may not have one).
+# Note: an *unreadable* log will still error from grep below — by design,
+# we'd rather block than silently allow when state is corrupt.
 [ -f "$LOG" ] || exit 0
 
 if grep -qxF "$FILE" "$LOG"; then
@@ -27,7 +29,9 @@ fi
 # Some Edits to files-Claude-just-created will not show in the read log;
 # allow if file mtime is within the last 60s (assume Claude created it).
 if [ -f "$FILE" ]; then
-    if [ "$(($(date +%s) - $(stat -f %m "$FILE" 2>/dev/null || stat -c %Y "$FILE" 2>/dev/null || echo 0)))" -lt 60 ]; then
+    NOW=$(date +%s)
+    MTIME=$(stat -f %m "$FILE" 2>/dev/null || stat -c %Y "$FILE" 2>/dev/null || echo 0)
+    if [ $((NOW - MTIME)) -lt 60 ]; then
         exit 0
     fi
 fi
