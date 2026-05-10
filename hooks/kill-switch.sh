@@ -5,7 +5,8 @@
 # and the hook surfaces it in the block message.
 set -euo pipefail
 if [ -f "$HOME/.claude/PAUSE_AND_REVIEW" ]; then
-    REASON=$(cat "$HOME/.claude/PAUSE_AND_REVIEW" 2>/dev/null || echo "(no reason file content)")
+    REASON=$(cat "$HOME/.claude/PAUSE_AND_REVIEW" 2>/dev/null)
+    [ -z "$REASON" ] && REASON="(no reason file content)"
     echo "BLOCKED: PAUSED by $HOME/.claude/PAUSE_AND_REVIEW. Reason: $REASON" >&2
     echo "To resume, delete the file. To set a reason, write it into the file before resuming." >&2
     exit 2

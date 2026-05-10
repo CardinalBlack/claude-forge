@@ -46,7 +46,7 @@ teardown() {
     run env HOME="$HOME" bash "$REPO_ROOT/hooks/kill-switch.sh" <<< "$payload"
     assert_failure 2
     assert_output --partial "BLOCKED"
-    assert_output --partial "Reason:"
+    assert_output --partial "(no reason file content)"
 }
 
 @test "blocks Bash tool when paused" {
