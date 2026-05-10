@@ -1,0 +1,32 @@
+# Declarative list of bootstrap hooks for ~/.claude/settings.json composition.
+#
+# Each entry maps a hook script in this directory to a Claude Code hook event,
+# optionally with a `matcher` regex applied against the tool name.
+#
+# Events that take a matcher (matcher is required by Claude Code schema):
+#   PreToolUse, PostToolUse
+# Events that do NOT take a matcher (matcher field is omitted entirely):
+#   UserPromptSubmit, Stop, PreCompact, SessionStart
+#
+# scripts/install-hooks.sh consumes this file and merges the entries into
+# ~/.claude/settings.json idempotently.
+
+hooks:
+  - script: must-read-before-edit.sh
+    event: PreToolUse
+    matcher: "Edit|Write"
+  - script: log-read-paths.sh
+    event: PostToolUse
+    matcher: "Read"
+  - script: kill-switch.sh
+    event: PreToolUse
+    matcher: ".*"
+  - script: inject-mistakes-and-dod.sh
+    event: UserPromptSubmit
+  - script: inject-session-state.sh
+    event: UserPromptSubmit
+  - script: block-direct-main-commit.sh
+    event: PreToolUse
+    matcher: "Bash"
+  - script: require-verification-before-done.sh
+    event: Stop
