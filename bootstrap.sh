@@ -10,3 +10,8 @@ mkdir -p "${CLAUDE_HOME}/skills"
 mkdir -p "${CLAUDE_HOME}/agents"
 mkdir -p "${CLAUDE_HOME}/state"
 mkdir -p "${CLAUDE_HOME}/forensics"
+
+# Merge hooks from MANIFEST.yaml into ~/.claude/settings.json. Idempotent —
+# safe to re-run after `git pull` without duplicating entries or clobbering
+# the user's hand-tuned config.
+"${BOOTSTRAP_HOME}/scripts/install-hooks.sh"

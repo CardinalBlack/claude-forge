@@ -24,3 +24,19 @@ teardown() {
     bash "$REPO_ROOT/bootstrap.sh"
     [ -d "$TEST_HOME/.claude/agents" ]
 }
+
+@test "bootstrap.sh installs hooks into settings.json" {
+    bash "$REPO_ROOT/bootstrap.sh"
+    [ -f "$TEST_HOME/.claude/settings.json" ]
+    grep -q "must-read-before-edit.sh" "$TEST_HOME/.claude/settings.json"
+    grep -q "kill-switch.sh" "$TEST_HOME/.claude/settings.json"
+    grep -q "require-verification-before-done.sh" "$TEST_HOME/.claude/settings.json"
+}
+
+@test "bootstrap.sh hook installation is idempotent" {
+    bash "$REPO_ROOT/bootstrap.sh"
+    bash "$REPO_ROOT/bootstrap.sh"
+    count=$(jq '[.. | objects | select(.command? != null) | select(.command | contains("must-read-before-edit.sh"))] | length' \
+        "$TEST_HOME/.claude/settings.json")
+    [ "$count" = "1" ]
+}
