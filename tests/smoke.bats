@@ -3,10 +3,14 @@
 load 'test_helper/bats-support/load'
 load 'test_helper/bats-assert/load'
 
+setup() {
+    REPO_ROOT="$(cd "$BATS_TEST_DIRNAME/.." && pwd)"
+}
+
 @test "repo skeleton exists" {
-    [ -d "$HOME/.claude-bootstrap/hooks" ]
-    [ -d "$HOME/.claude-bootstrap/skills" ]
-    [ -d "$HOME/.claude-bootstrap/agents" ]
-    [ -d "$HOME/.claude-bootstrap/templates" ]
-    [ -d "$HOME/.claude-bootstrap/crons" ]
+    [ -d "$REPO_ROOT/hooks" ]
+    [ -d "$REPO_ROOT/skills" ]
+    [ -d "$REPO_ROOT/agents" ]
+    [ -d "$REPO_ROOT/templates" ]
+    [ -d "$REPO_ROOT/crons" ]
 }

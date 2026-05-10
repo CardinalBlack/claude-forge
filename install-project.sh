@@ -6,6 +6,7 @@ set -euo pipefail
 
 PROJECT="${1:-$(pwd)}"
 BOOTSTRAP_HOME="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+# Used by Phase 5 to copy from BOOTSTRAP_HOME/templates/* into the project.
 
 # Phase 0 stub: empty placeholders for the smoke test. Phase 5 replaces this
 # with actual cp from templates/.
