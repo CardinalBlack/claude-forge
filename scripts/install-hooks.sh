@@ -63,9 +63,21 @@ if ! jq -e . "$SETTINGS" >/dev/null 2>&1; then
     exit 1
 fi
 
+# Refuse to clobber a non-object .hooks key — gives a clear error rather than
+# a cryptic jq message mid-merge. Treats absent .hooks (null) as fine.
+if ! jq -e '(.hooks // {}) | type == "object"' "$SETTINGS" >/dev/null 2>&1; then
+    echo "ERROR: ${SETTINGS} has a .hooks key that isn't an object. Refusing to overwrite." >&2
+    echo "       Expected shape: { \"hooks\": { \"PreToolUse\": [...], \"PostToolUse\": [...], ... } }" >&2
+    exit 1
+fi
+
 # ---------- atomic-merge scratch ----------
 
-TMP=$(mktemp)
+# Create the temp file in the SAME directory as the destination so the final
+# `mv` is a guaranteed-atomic rename(2) instead of cross-FS copy+unlink.
+# (Default mktemp uses $TMPDIR / /tmp, which on Linux is typically tmpfs while
+# $HOME is on the root FS — that turns the publish into a non-atomic copy.)
+TMP=$(mktemp "$(dirname "$SETTINGS")/.settings.XXXXXX")
 trap 'rm -f "$TMP" "${TMP}.next"' EXIT
 
 cp "$SETTINGS" "$TMP"

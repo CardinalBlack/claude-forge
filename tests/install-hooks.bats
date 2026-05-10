@@ -229,3 +229,29 @@ JSON
 
     rm -r "$fake_home"
 }
+
+@test "install-hooks.sh stages temp file in settings dir (same-FS, atomic rename) and cleans up" {
+    # Run install — the temp file should be staged inside ~/.claude/, not /tmp.
+    # On success the trap-disarm runs and the rename consumes the temp; either
+    # way no `.settings.*` leftovers should remain.
+    run bash "$REPO_ROOT/scripts/install-hooks.sh"
+    assert_success
+
+    # No leftover staged temp files in the settings dir.
+    leftovers=$(find "$TEST_HOME/.claude" -maxdepth 1 -name '.settings.*' -print)
+    [ -z "$leftovers" ] || { echo "unexpected leftover staged temp files: $leftovers"; false; }
+}
+
+@test "install-hooks.sh refuses to overwrite when .hooks is not an object" {
+    cat > "$SETTINGS" <<'JSON'
+{"hooks": "yes"}
+JSON
+    original_content=$(cat "$SETTINGS")
+
+    run bash "$REPO_ROOT/scripts/install-hooks.sh"
+    assert_failure
+    assert_output --partial "isn't an object"
+
+    # File unchanged
+    [ "$(cat "$SETTINGS")" = "$original_content" ]
+}
