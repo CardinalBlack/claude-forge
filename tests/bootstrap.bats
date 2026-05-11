@@ -8,11 +8,18 @@ setup() {
     export TEST_HOME=$(mktemp -d)
     export REAL_HOME="$HOME"
     export HOME="$TEST_HOME"
+    # Test seam: bootstrap.sh invokes scripts/install-crons.sh, which mutates
+    # the user's real crontab unless CLAUDE_CRONTAB_FILE is set. Redirect to
+    # a temp file so bats runs never touch the real crontab. Without this,
+    # `bats tests/` would silently install daily-review/weekly-audit cron
+    # entries into the developer's actual crontab on every test run.
+    export CLAUDE_CRONTAB_FILE=$(mktemp)
 }
 
 teardown() {
     export HOME="$REAL_HOME"
     rm -r "$TEST_HOME" 2>/dev/null || true
+    rm -f "$CLAUDE_CRONTAB_FILE" 2>/dev/null || true
 }
 
 @test "bootstrap.sh creates ~/.claude/skills directory" {
@@ -80,9 +87,26 @@ teardown() {
     [ -f "$TEST_HOME/.claude/skills/pre-flight-checklist/USER.md" ]
 }
 
-@test "bootstrap.sh skips install-crons.sh when it doesn't exist (Phase 6 not yet shipped)" {
-    # Phase 5 ships before Phase 6. bootstrap.sh must not abort if
-    # scripts/install-crons.sh is absent — should silently no-op that step.
+@test "bootstrap.sh runs install-crons.sh when present (Phase 6 shipped)" {
+    # Phase 5 added a conditional invocation of scripts/install-crons.sh.
+    # With Phase 6 shipped, the script exists and bootstrap.sh should
+    # invoke it. The CLAUDE_CRONTAB_FILE seam (set in setup) redirects
+    # the crontab mutation to a temp file so this assertion is hermetic.
     run bash "$REPO_ROOT/bootstrap.sh"
     [ "$status" -eq 0 ]
+    # Daily and weekly entries should land in the test-seam file.
+    grep -q "daily-review.sh" "$CLAUDE_CRONTAB_FILE"
+    grep -q "weekly-audit.sh" "$CLAUDE_CRONTAB_FILE"
+}
+
+@test "bootstrap.sh tolerates install-crons.sh absence (forward compatibility)" {
+    # Defensive: if a future refactor removes or renames install-crons.sh
+    # (or it's deleted in a partial checkout), bootstrap.sh must still
+    # succeed for the rest of the install. Simulate by temporarily
+    # renaming the script.
+    mv "$REPO_ROOT/scripts/install-crons.sh" "$REPO_ROOT/scripts/install-crons.sh.bak"
+    run bash "$REPO_ROOT/bootstrap.sh"
+    rc=$status
+    mv "$REPO_ROOT/scripts/install-crons.sh.bak" "$REPO_ROOT/scripts/install-crons.sh"
+    [ "$rc" -eq 0 ]
 }
