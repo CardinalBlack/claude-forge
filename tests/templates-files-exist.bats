@@ -42,3 +42,14 @@ setup() {
     [ -f "$REPO_ROOT/templates/CLAUDE-ADDENDUM.md" ]
     grep -q "Bootstrap addendum" "$REPO_ROOT/templates/CLAUDE-ADDENDUM.md"
 }
+
+@test "SESSION-STATE.md template exists with hook-required sections" {
+    [ -f "$REPO_ROOT/templates/SESSION-STATE.md" ]
+    grep -q "^# Session State" "$REPO_ROOT/templates/SESSION-STATE.md"
+    # inject-session-state.sh greps for these three section headers; if a
+    # template ships without them, every fresh project would silently no-op
+    # the staleness-warning + state-injection hook.
+    grep -q "^## In Progress" "$REPO_ROOT/templates/SESSION-STATE.md"
+    grep -q "^## Next Up" "$REPO_ROOT/templates/SESSION-STATE.md"
+    grep -q "^## Active Plan" "$REPO_ROOT/templates/SESSION-STATE.md"
+}
