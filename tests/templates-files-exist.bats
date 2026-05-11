@@ -37,3 +37,8 @@ setup() {
     [ -f "$REPO_ROOT/templates/.github/pull_request_template.md" ]
     grep -q "^## What changed" "$REPO_ROOT/templates/.github/pull_request_template.md"
 }
+
+@test "CLAUDE-ADDENDUM.md template exists" {
+    [ -f "$REPO_ROOT/templates/CLAUDE-ADDENDUM.md" ]
+    grep -q "Bootstrap addendum" "$REPO_ROOT/templates/CLAUDE-ADDENDUM.md"
+}
