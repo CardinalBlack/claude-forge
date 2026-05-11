@@ -22,3 +22,8 @@ setup() {
     [ -f "$REPO_ROOT/skills/bug-postmortem/SKILL.md" ]
     grep -q "^name: bug-postmortem" "$REPO_ROOT/skills/bug-postmortem/SKILL.md"
 }
+
+@test "premortem skill exists with frontmatter" {
+    [ -f "$REPO_ROOT/skills/premortem/SKILL.md" ]
+    grep -q "^name: premortem" "$REPO_ROOT/skills/premortem/SKILL.md"
+}
