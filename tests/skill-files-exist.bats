@@ -1,0 +1,14 @@
+#!/usr/bin/env bats
+
+load 'test_helper/bats-support/load'
+load 'test_helper/bats-assert/load'
+
+setup() {
+    REPO_ROOT="$(cd "$BATS_TEST_DIRNAME/.." && pwd)"
+    export REPO_ROOT
+}
+
+@test "pre-flight-checklist skill exists with frontmatter" {
+    [ -f "$REPO_ROOT/skills/pre-flight-checklist/SKILL.md" ]
+    grep -q "^name: pre-flight-checklist" "$REPO_ROOT/skills/pre-flight-checklist/SKILL.md"
+}
