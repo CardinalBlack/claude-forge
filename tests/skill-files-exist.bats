@@ -37,3 +37,8 @@ setup() {
     [ -f "$REPO_ROOT/skills/daily-review/SKILL.md" ]
     grep -q "^name: daily-review" "$REPO_ROOT/skills/daily-review/SKILL.md"
 }
+
+@test "weekly-audit skill exists with frontmatter" {
+    [ -f "$REPO_ROOT/skills/weekly-audit/SKILL.md" ]
+    grep -q "^name: weekly-audit" "$REPO_ROOT/skills/weekly-audit/SKILL.md"
+}
