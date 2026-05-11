@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# claude-bootstrap installer.
+# claude-forge installer.
 # Installs skills, agents, hooks, and (when shipped) crons into ~/.claude/.
 # Idempotent: safe to re-run after `git pull`.
 #
@@ -52,7 +52,7 @@ fi
 SKILL_COUNT=$(ls "${CLAUDE_HOME}/skills" 2>/dev/null | wc -l | tr -d ' ')
 AGENT_COUNT=$(ls "${CLAUDE_HOME}/agents" 2>/dev/null | wc -l | tr -d ' ')
 
-echo "claude-bootstrap installed."
+echo "claude-forge installed."
 echo "  skills: ${SKILL_COUNT}"
 echo "  agents: ${AGENT_COUNT}"
 echo "  hooks merged into ${CLAUDE_HOME}/settings.json"

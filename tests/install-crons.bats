@@ -26,7 +26,7 @@ teardown() {
     [ "$status" -eq 0 ]
     grep -q "daily-review.sh" "$CLAUDE_CRONTAB_FILE"
     grep -q "weekly-audit.sh" "$CLAUDE_CRONTAB_FILE"
-    grep -q "claude-bootstrap" "$CLAUDE_CRONTAB_FILE"
+    grep -q "claude-forge" "$CLAUDE_CRONTAB_FILE"
 }
 
 @test "install-crons.sh is idempotent — re-run does not duplicate entries" {

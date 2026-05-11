@@ -20,7 +20,7 @@
 #     original. A trap cleans up the temp on early exit.
 #
 # IMPORTANT: The absolute path to BOOTSTRAP_HOME is baked into settings.json.
-# If you move or rename the repo (e.g. ~/.claude-bootstrap/) after install,
+# If you move or rename the repo (e.g. ~/.claude-forge/) after install,
 # the hook commands will point to dead paths. Re-run this script after any
 # move to refresh the entries.
 

@@ -73,7 +73,7 @@ teardown() {
 @test "install-project.sh creates CLAUDE.md when absent" {
     bash "$REPO_ROOT/install-project.sh" "$TEST_PROJECT"
     [ -f "$TEST_PROJECT/CLAUDE.md" ]
-    grep -q "Bootstrap addendum" "$TEST_PROJECT/CLAUDE.md"
+    grep -q "Forge addendum" "$TEST_PROJECT/CLAUDE.md"
 }
 
 @test "install-project.sh appends addendum to existing CLAUDE.md, doesn't overwrite" {
@@ -81,13 +81,13 @@ teardown() {
     echo "User-owned content that must survive." >> "$TEST_PROJECT/CLAUDE.md"
     bash "$REPO_ROOT/install-project.sh" "$TEST_PROJECT"
     grep -q "User-owned content that must survive" "$TEST_PROJECT/CLAUDE.md"
-    grep -q "Bootstrap addendum" "$TEST_PROJECT/CLAUDE.md"
+    grep -q "Forge addendum" "$TEST_PROJECT/CLAUDE.md"
 }
 
 @test "install-project.sh is idempotent — re-run does not duplicate addendum" {
     bash "$REPO_ROOT/install-project.sh" "$TEST_PROJECT"
     bash "$REPO_ROOT/install-project.sh" "$TEST_PROJECT"
-    count=$(grep -c "Bootstrap addendum" "$TEST_PROJECT/CLAUDE.md")
+    count=$(grep -c "Forge addendum" "$TEST_PROJECT/CLAUDE.md")
     [ "$count" = "1" ]
 }
 

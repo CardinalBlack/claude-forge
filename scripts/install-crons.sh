@@ -19,8 +19,8 @@ BOOTSTRAP_HOME="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 DAILY_CMD="${BOOTSTRAP_HOME}/crons/daily-review.sh"
 WEEKLY_CMD="${BOOTSTRAP_HOME}/crons/weekly-audit.sh"
 
-DAILY_LINE="0 6 * * * ${DAILY_CMD} > /tmp/claude-daily-review.log 2>&1  # claude-bootstrap"
-WEEKLY_LINE="0 7 * * 1 ${WEEKLY_CMD} > /tmp/claude-weekly-audit.log 2>&1  # claude-bootstrap"
+DAILY_LINE="0 6 * * * ${DAILY_CMD} > /tmp/claude-daily-review.log 2>&1  # claude-forge"
+WEEKLY_LINE="0 7 * * 1 ${WEEKLY_CMD} > /tmp/claude-weekly-audit.log 2>&1  # claude-forge"
 
 # Read current crontab (or test-seam file if set).
 read_current() {
@@ -44,7 +44,7 @@ CURRENT=$(read_current)
 NEW="$CURRENT"
 
 # Idempotency: match by the daily/weekly command path string. Matching on
-# the comment ("# claude-bootstrap") alone would re-add lines if the user
+# the comment ("# claude-forge") alone would re-add lines if the user
 # moves/renames the bootstrap checkout. Matching the absolute command path
 # means moving the checkout requires a re-install (correct behavior — the
 # old paths in crontab would silently 404 otherwise).

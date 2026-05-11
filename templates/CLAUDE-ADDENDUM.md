@@ -1,7 +1,7 @@
 
 ---
 
-# Bootstrap addendum (managed by ~/.claude-bootstrap)
+# Forge addendum (managed by ~/.claude-forge)
 
 This section is appended by `install-project.sh`. Do not edit directly — re-run installer if it drifts.
 

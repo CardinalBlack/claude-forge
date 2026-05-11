@@ -47,7 +47,7 @@ fi
 
 # CLAUDE.md addendum: append to existing CLAUDE.md, or create if absent.
 # The marker string is the idempotency check — re-running never duplicates.
-ADDENDUM_MARKER="Bootstrap addendum (managed by ~/.claude-bootstrap)"
+ADDENDUM_MARKER="Forge addendum (managed by ~/.claude-forge)"
 if [ -f CLAUDE.md ]; then
     if ! grep -qF "$ADDENDUM_MARKER" CLAUDE.md; then
         cat "${BOOTSTRAP_HOME}/templates/CLAUDE-ADDENDUM.md" >> CLAUDE.md

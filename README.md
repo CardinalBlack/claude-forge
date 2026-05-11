@@ -1,4 +1,4 @@
-# claude-bootstrap
+# claude-forge
 
 A set of guardrails, checklists, and reviewers that make [Claude Code](https://claude.com/claude-code) more reliable. Install once, and every Claude Code session on your machine inherits the protections.
 
@@ -32,10 +32,10 @@ Open a terminal. Run these commands one at a time:
 
 ```bash
 # 1. Clone the repo with its test framework
-git clone --recurse-submodules https://github.com/<your-fork-or-the-original>/claude-bootstrap.git ~/.claude-bootstrap
+git clone --recurse-submodules https://github.com/<your-fork-or-the-original>/claude-forge.git ~/.claude-forge
 
 # 2. Move into it
-cd ~/.claude-bootstrap
+cd ~/.claude-forge
 
 # 3. Run the test suite to confirm everything works on your machine
 make test
@@ -406,8 +406,8 @@ Two scripts in `crons/` are installed into your system's crontab by `scripts/ins
 `scripts/install-crons.sh` adds two lines to your user crontab. You can inspect them with `crontab -l`. They look like:
 
 ```
-0 6 * * * /Users/you/.claude-bootstrap/crons/daily-review.sh > /tmp/claude-daily-review.log 2>&1  # claude-bootstrap
-0 7 * * 1 /Users/you/.claude-bootstrap/crons/weekly-audit.sh > /tmp/claude-weekly-audit.log 2>&1  # claude-bootstrap
+0 6 * * * /Users/you/.claude-forge/crons/daily-review.sh > /tmp/claude-daily-review.log 2>&1  # claude-forge
+0 7 * * 1 /Users/you/.claude-forge/crons/weekly-audit.sh > /tmp/claude-weekly-audit.log 2>&1  # claude-forge
 ```
 
 The install is idempotent — re-running never duplicates entries. If you move or rename the bootstrap checkout, run `./bootstrap.sh` again and the crontab paths update.
@@ -421,8 +421,8 @@ The install is idempotent — re-running never duplicates entries. If you move o
 │  GLOBAL — ~/.claude/                                             │
 │  Every Claude Code session, every project, every CWD.            │
 │                                                                  │
-│  ~/.claude/skills/      ← symlinks to ~/.claude-bootstrap/skills │
-│  ~/.claude/agents/      ← symlinks to ~/.claude-bootstrap/agents │
+│  ~/.claude/skills/      ← symlinks to ~/.claude-forge/skills │
+│  ~/.claude/agents/      ← symlinks to ~/.claude-forge/agents │
 │  ~/.claude/settings.json hooks ← merged in by install-hooks.sh   │
 │  ~/.claude/state/, reports/, forensics/                          │
 └──────────────────────────────────────────────────────────────────┘
@@ -447,7 +447,7 @@ The install is idempotent — re-running never duplicates entries. If you move o
 └──────────────────────────────────────────────────────────────────┘
 ```
 
-Skills and agents are **symlinked** (not copied), so when you `git pull` in `~/.claude-bootstrap/`, your installed skills and agents update automatically. Templates are **copied** so each project owns its own institutional memory independently.
+Skills and agents are **symlinked** (not copied), so when you `git pull` in `~/.claude-forge/`, your installed skills and agents update automatically. Templates are **copied** so each project owns its own institutional memory independently.
 
 ---
 
@@ -464,7 +464,7 @@ You'll also need Claude Code itself installed and working. If `claude --version`
 ### 1. Clone the repo
 
 ```bash
-git clone --recurse-submodules https://github.com/<your-fork>/claude-bootstrap.git ~/.claude-bootstrap
+git clone --recurse-submodules https://github.com/<your-fork>/claude-forge.git ~/.claude-forge
 ```
 
 The `--recurse-submodules` flag pulls in `bats-core` (the test framework) as a vendored git submodule. Without it, the test suite won't run.
@@ -472,7 +472,7 @@ The `--recurse-submodules` flag pulls in `bats-core` (the test framework) as a v
 ### 2. Verify the tests pass
 
 ```bash
-cd ~/.claude-bootstrap
+cd ~/.claude-forge
 make test
 ```
 
@@ -486,15 +486,15 @@ You should see 141 tests, all green. If any fail, **don't proceed with the insta
 
 This does five things:
 1. Creates the directories `~/.claude/skills/`, `~/.claude/agents/`, `~/.claude/state/`, `~/.claude/forensics/`, `~/.claude/reports/` if they don't exist
-2. Symlinks each skill from `~/.claude-bootstrap/skills/` into `~/.claude/skills/`
-3. Symlinks each agent from `~/.claude-bootstrap/agents/` into `~/.claude/agents/`
+2. Symlinks each skill from `~/.claude-forge/skills/` into `~/.claude/skills/`
+3. Symlinks each agent from `~/.claude-forge/agents/` into `~/.claude/agents/`
 4. Runs `scripts/install-hooks.sh` to merge the 7 hooks into `~/.claude/settings.json` (idempotent, preserves any hooks you already have)
 5. Runs `scripts/install-crons.sh` to add the daily and weekly review entries to your crontab
 
 You'll see a summary at the end:
 
 ```
-claude-bootstrap installed.
+claude-forge installed.
   skills: 7
   agents: 4
   hooks merged into /Users/you/.claude/settings.json
@@ -504,7 +504,7 @@ crontab updated
 ### 4. Install the per-project layer for one or more projects
 
 ```bash
-~/.claude-bootstrap/install-project.sh ~/path/to/your/project
+~/.claude-forge/install-project.sh ~/path/to/your/project
 ```
 
 This drops 8 template files into the project (each with the same "skip if file already exists" idempotency), appends the CLAUDE-ADDENDUM block to your existing `CLAUDE.md` (or creates one if none exists), and registers the project in `~/.claude/state/audited-projects.json` so the daily and weekly crons will pick it up.
@@ -556,7 +556,7 @@ After you edit, the next session Claude opens in this project will see the chang
 
 ### Adding your own skills
 
-Create a new directory and file at `~/.claude-bootstrap/skills/<your-skill-name>/SKILL.md`. The file needs YAML frontmatter:
+Create a new directory and file at `~/.claude-forge/skills/<your-skill-name>/SKILL.md`. The file needs YAML frontmatter:
 
 ```markdown
 ---
@@ -570,11 +570,11 @@ The actual procedure Claude should follow goes here. Be specific. Include
 sections, examples, and what output Claude should produce when invoked.
 ```
 
-Re-run `~/.claude-bootstrap/bootstrap.sh` to symlink the new skill into `~/.claude/skills/`. The next Claude Code session will see it.
+Re-run `~/.claude-forge/bootstrap.sh` to symlink the new skill into `~/.claude/skills/`. The next Claude Code session will see it.
 
 ### Adding your own subagents
 
-Same idea, but at `~/.claude-bootstrap/agents/<your-agent-name>.md`. The frontmatter requires a third field — `tools` — that lists what tools the agent is allowed to use:
+Same idea, but at `~/.claude-forge/agents/<your-agent-name>.md`. The frontmatter requires a third field — `tools` — that lists what tools the agent is allowed to use:
 
 ```markdown
 ---
@@ -619,7 +619,7 @@ ls ~/.claude/settings.json.backup-pre-bootstrap-*
 cp ~/.claude/settings.json.backup-pre-bootstrap-YYYY-MM-DD ~/.claude/settings.json
 
 # Cron entries
-crontab -l | grep -v "claude-bootstrap" | crontab -
+crontab -l | grep -v "claude-forge" | crontab -
 ```
 
 ### Removing the per-project layer from a project
@@ -645,7 +645,7 @@ Edit `~/.claude/state/audited-projects.json` and remove the entry for the projec
 When new commits land in the bootstrap repo:
 
 ```bash
-cd ~/.claude-bootstrap
+cd ~/.claude-forge
 make update    # git pull --rebase && ./bootstrap.sh
 ```
 

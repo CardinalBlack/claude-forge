@@ -40,7 +40,7 @@ setup() {
 
 @test "CLAUDE-ADDENDUM.md template exists" {
     [ -f "$REPO_ROOT/templates/CLAUDE-ADDENDUM.md" ]
-    grep -q "Bootstrap addendum" "$REPO_ROOT/templates/CLAUDE-ADDENDUM.md"
+    grep -q "Forge addendum" "$REPO_ROOT/templates/CLAUDE-ADDENDUM.md"
 }
 
 @test "SESSION-STATE.md template exists with hook-required sections" {
