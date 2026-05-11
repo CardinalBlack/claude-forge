@@ -32,3 +32,8 @@ setup() {
     [ -f "$REPO_ROOT/skills/session-debrief/SKILL.md" ]
     grep -q "^name: session-debrief" "$REPO_ROOT/skills/session-debrief/SKILL.md"
 }
+
+@test "daily-review skill exists with frontmatter" {
+    [ -f "$REPO_ROOT/skills/daily-review/SKILL.md" ]
+    grep -q "^name: daily-review" "$REPO_ROOT/skills/daily-review/SKILL.md"
+}
