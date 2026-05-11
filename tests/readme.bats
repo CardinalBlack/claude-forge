@@ -45,10 +45,15 @@ setup() {
     grep -qi "crons\|cron" "$REPO_ROOT/README.md"
 }
 
-@test "README.md does not reference user-specific or downstream-project content" {
-    # The bootstrap repo is meant to be shareable. References to a
-    # specific downstream project (virtual-rep / veridian / sarah / kye /
-    # accrufer / a personal handle) leak private context and would
-    # confuse external readers. Guard against accidental drift.
-    ! grep -qiE "virtual-rep|veridian|sarah|accrufer|kye pharmaceuticals|adam blackburn|cardinalblack" "$REPO_ROOT/README.md"
+@test "README.md does not reference downstream-project content" {
+    # The repo is meant to be shareable. References to a specific
+    # downstream project (virtual-rep / veridian / sarah / kye /
+    # accrufer) leak private business context and would confuse external
+    # readers. Guard against accidental drift.
+    #
+    # NOTE: the copyright-holder identifier (e.g. an author's name or a
+    # GitHub handle) IS allowed — it's legitimately mentioned in the
+    # LICENSE attribution line. The guard scope is downstream-project
+    # specifics, not the author's identity.
+    ! grep -qiE "virtual-rep|veridian|sarah|accrufer|kye pharmaceuticals" "$REPO_ROOT/README.md"
 }

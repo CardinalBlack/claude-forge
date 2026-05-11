@@ -745,7 +745,7 @@ A few principles drove the design choices throughout.
 
 ## License
 
-Not yet licensed. If you'd like to use this in your own work, please reach out to discuss terms, or fork and adapt. A LICENSE will land before v1.0.
+[MIT](LICENSE) © 2026 CardinalBlack. Use, modify, fork, and embed in commercial or non-commercial work freely — just keep the copyright notice and the license text intact in any copy or derivative.
 
 ## Contributing
 
