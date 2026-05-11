@@ -17,3 +17,8 @@ setup() {
     [ -f "$REPO_ROOT/skills/definition-of-done/SKILL.md" ]
     grep -q "^name: definition-of-done" "$REPO_ROOT/skills/definition-of-done/SKILL.md"
 }
+
+@test "bug-postmortem skill exists with frontmatter" {
+    [ -f "$REPO_ROOT/skills/bug-postmortem/SKILL.md" ]
+    grep -q "^name: bug-postmortem" "$REPO_ROOT/skills/bug-postmortem/SKILL.md"
+}
