@@ -33,7 +33,7 @@ setup() {
     # someone deciding whether to clone has incomplete information.
     grep -qiE "^## (Install|Quick start|Getting started)" "$REPO_ROOT/README.md"
     grep -qiE "^## (Uninstall|Removing)" "$REPO_ROOT/README.md"
-    grep -qiE "^## (How it works|Architecture|Layers)" "$REPO_ROOT/README.md"
+    grep -qiE "^## (How it works|How it all fits|Architecture|Layers)" "$REPO_ROOT/README.md"
 }
 
 @test "README.md mentions each top-level artifact category" {
