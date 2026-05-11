@@ -32,3 +32,8 @@ setup() {
     [ -f "$REPO_ROOT/templates/adr/0000-template.md" ]
     grep -q "^# ADR NNNN" "$REPO_ROOT/templates/adr/0000-template.md"
 }
+
+@test "PR template exists" {
+    [ -f "$REPO_ROOT/templates/.github/pull_request_template.md" ]
+    grep -q "^## What changed" "$REPO_ROOT/templates/.github/pull_request_template.md"
+}
