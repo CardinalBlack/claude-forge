@@ -40,3 +40,49 @@ teardown() {
         "$TEST_HOME/.claude/settings.json")
     [ "$count" = "1" ]
 }
+
+@test "bootstrap.sh symlinks every shipped skill into ~/.claude/skills/" {
+    bash "$REPO_ROOT/bootstrap.sh"
+    for SKILL_DIR in "$REPO_ROOT/skills"/*/; do
+        NAME=$(basename "$SKILL_DIR")
+        [ -L "$TEST_HOME/.claude/skills/$NAME" ]
+        # Resolve symlink target and confirm it points at the shipped skill dir
+        # (so `git pull` in the bootstrap repo updates user-facing skills).
+        TARGET=$(readlink "$TEST_HOME/.claude/skills/$NAME")
+        [[ "$TARGET" == *"/skills/$NAME"* ]] || [[ "$TARGET" == *"/skills/$NAME/" ]]
+    done
+}
+
+@test "bootstrap.sh symlinks every shipped agent into ~/.claude/agents/" {
+    bash "$REPO_ROOT/bootstrap.sh"
+    for AGENT_FILE in "$REPO_ROOT/agents"/*.md; do
+        NAME=$(basename "$AGENT_FILE")
+        [ -L "$TEST_HOME/.claude/agents/$NAME" ]
+    done
+}
+
+@test "bootstrap.sh symlink installation is idempotent (re-run preserves links)" {
+    bash "$REPO_ROOT/bootstrap.sh"
+    bash "$REPO_ROOT/bootstrap.sh"
+    # Same set of skills/agents present; no duplicate entries, no broken links.
+    SKILL_COUNT=$(ls "$TEST_HOME/.claude/skills" | wc -l | tr -d ' ')
+    EXPECTED=$(ls -d "$REPO_ROOT/skills"/*/ | wc -l | tr -d ' ')
+    [ "$SKILL_COUNT" = "$EXPECTED" ]
+}
+
+@test "bootstrap.sh refuses to clobber a real directory at \$CLAUDE_HOME/skills/<name>" {
+    # User has a non-symlink directory at the install target — bootstrap must
+    # NOT replace it (could be user's hand-curated skill), only warn + skip.
+    mkdir -p "$TEST_HOME/.claude/skills/pre-flight-checklist"
+    echo "user content" > "$TEST_HOME/.claude/skills/pre-flight-checklist/USER.md"
+    bash "$REPO_ROOT/bootstrap.sh"
+    [ ! -L "$TEST_HOME/.claude/skills/pre-flight-checklist" ]
+    [ -f "$TEST_HOME/.claude/skills/pre-flight-checklist/USER.md" ]
+}
+
+@test "bootstrap.sh skips install-crons.sh when it doesn't exist (Phase 6 not yet shipped)" {
+    # Phase 5 ships before Phase 6. bootstrap.sh must not abort if
+    # scripts/install-crons.sh is absent — should silently no-op that step.
+    run bash "$REPO_ROOT/bootstrap.sh"
+    [ "$status" -eq 0 ]
+}
