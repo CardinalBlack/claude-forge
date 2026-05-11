@@ -12,3 +12,8 @@ setup() {
     [ -f "$REPO_ROOT/agents/code-reviewer.md" ]
     grep -q "^name: code-reviewer" "$REPO_ROOT/agents/code-reviewer.md"
 }
+
+@test "devils-advocate agent file exists" {
+    [ -f "$REPO_ROOT/agents/devils-advocate.md" ]
+    grep -q "^name: devils-advocate" "$REPO_ROOT/agents/devils-advocate.md"
+}
