@@ -17,3 +17,8 @@ setup() {
     [ -f "$REPO_ROOT/agents/devils-advocate.md" ]
     grep -q "^name: devils-advocate" "$REPO_ROOT/agents/devils-advocate.md"
 }
+
+@test "task-debriefer agent file exists" {
+    [ -f "$REPO_ROOT/agents/task-debriefer.md" ]
+    grep -q "^name: task-debriefer" "$REPO_ROOT/agents/task-debriefer.md"
+}
