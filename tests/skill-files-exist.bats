@@ -12,3 +12,8 @@ setup() {
     [ -f "$REPO_ROOT/skills/pre-flight-checklist/SKILL.md" ]
     grep -q "^name: pre-flight-checklist" "$REPO_ROOT/skills/pre-flight-checklist/SKILL.md"
 }
+
+@test "definition-of-done skill exists with frontmatter" {
+    [ -f "$REPO_ROOT/skills/definition-of-done/SKILL.md" ]
+    grep -q "^name: definition-of-done" "$REPO_ROOT/skills/definition-of-done/SKILL.md"
+}
