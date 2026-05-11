@@ -16,7 +16,7 @@ When the user catches a bug or corrects an assumption:
   - **What I assumed:**
   - **What was actually true:**
   - **How the bug manifested:**
-  - **Root cause:**
+  - **Root cause (one sentence):**
   - **What would have caught it earlier:**
   - **Test / lint / hook drafted:**
 
