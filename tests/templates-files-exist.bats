@@ -22,3 +22,8 @@ setup() {
     [ -f "$REPO_ROOT/templates/RISKY-PATHS.md" ]
     grep -q "^# Risky Paths" "$REPO_ROOT/templates/RISKY-PATHS.md"
 }
+
+@test "BORING.md template exists" {
+    [ -f "$REPO_ROOT/templates/BORING.md" ]
+    grep -q "^# Boring Paths" "$REPO_ROOT/templates/BORING.md"
+}
