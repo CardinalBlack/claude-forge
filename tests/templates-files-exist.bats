@@ -17,3 +17,8 @@ setup() {
     [ -f "$REPO_ROOT/templates/DEFINITION-OF-DONE.md" ]
     grep -q "^# Definition of Done" "$REPO_ROOT/templates/DEFINITION-OF-DONE.md"
 }
+
+@test "RISKY-PATHS.md template exists" {
+    [ -f "$REPO_ROOT/templates/RISKY-PATHS.md" ]
+    grep -q "^# Risky Paths" "$REPO_ROOT/templates/RISKY-PATHS.md"
+}
