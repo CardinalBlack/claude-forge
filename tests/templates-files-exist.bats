@@ -27,3 +27,8 @@ setup() {
     [ -f "$REPO_ROOT/templates/BORING.md" ]
     grep -q "^# Boring Paths" "$REPO_ROOT/templates/BORING.md"
 }
+
+@test "ADR template exists" {
+    [ -f "$REPO_ROOT/templates/adr/0000-template.md" ]
+    grep -q "^# ADR NNNN" "$REPO_ROOT/templates/adr/0000-template.md"
+}
