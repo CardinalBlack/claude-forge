@@ -117,15 +117,19 @@ When `./bootstrap.sh` runs, it merges these hook registrations into your `~/.cla
 
 **When it fires:** Every time you hit Enter on a prompt.
 
-### 6. `block-direct-main-commit.sh`
+### 6. `block-direct-main-commit.sh` *(opt-in as of v1.1)*
 
 **What it does:** Refuses any `git commit` command run on the `main` or `master` branch. To override, you can either include the literal string `ALLOW-MAIN-COMMIT:` in the commit message itself (intended as a deliberate, in-message acknowledgment), or set `CLAUDE_ALLOW_MAIN=1` in your environment.
 
-**Why it exists:** Direct commits to `main` are how the worst regressions ship. Forcing a feature branch (`git checkout -b feat/something`) before any commit means there's always a chance to review the diff in a pull request before it hits production.
+**Why it exists:** Direct commits to `main` are how the worst regressions ship in team environments. Forcing a feature branch (`git checkout -b feat/something`) before any commit means there's always a chance to review the diff in a pull request before it hits production.
+
+**Why it's opt-in:** For solo developers who own and merge all their own work, the hook adds significant friction (a feature branch + PR per change) without proportional benefit (no separate reviewer; the same person writes and merges). The original v1.0 default was "on" — v1.1 changed the default to "off" after real-world use revealed the friction-to-value ratio is project-dependent. The script and tests remain in the repo unchanged; only the `hooks/MANIFEST.yaml` entry has been commented out.
+
+**How to re-enable it:** Uncomment the `block-direct-main-commit.sh` entry in `hooks/MANIFEST.yaml` and re-run `./bootstrap.sh` (or `./scripts/install-hooks.sh` directly). The merge is idempotent. Or, for a per-project version, add a project-local hook that wraps the same logic with stricter rules (e.g., only fire when files in `RISKY-PATHS.md` are staged).
 
 **Smart edge cases:** The check carefully avoids false positives on commands like `git commit-tree` or `git commit-graph` (different Git plumbing commands that happen to start with "git commit"). It also doesn't fire when you're not in a Git repo, or when you're on a detached HEAD.
 
-**When it fires:** Before any `Bash` tool call that includes the words `git commit`.
+**When it fires (when enabled):** Before any `Bash` tool call that includes the words `git commit`.
 
 ### 7. `require-verification-before-done.sh`
 

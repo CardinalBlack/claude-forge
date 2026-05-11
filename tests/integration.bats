@@ -63,15 +63,24 @@ teardown() {
         }
     done
 
-    # All seven hooks present in settings.json by absolute-path command.
+    # All six default-on hooks present in settings.json by absolute-path
+    # command. (block-direct-main-commit.sh is opt-in as of v1.1 — the
+    # script + tests remain in the repo but it is no longer added to
+    # settings.json by default. See hooks/MANIFEST.yaml for the rationale.)
     for HOOK in must-read-before-edit log-read-paths kill-switch \
                 inject-mistakes-and-dod inject-session-state \
-                block-direct-main-commit require-verification-before-done; do
+                require-verification-before-done; do
         grep -q "${HOOK}.sh" "$TEST_HOME/.claude/settings.json" || {
             echo "hook not in settings.json: $HOOK" >&2
             return 1
         }
     done
+
+    # block-direct-main-commit.sh must NOT be present (opt-in default).
+    ! grep -q "block-direct-main-commit.sh" "$TEST_HOME/.claude/settings.json" || {
+        echo "block-direct-main-commit.sh unexpectedly in settings.json (should be opt-in)" >&2
+        return 1
+    }
 
     # Both cron entries present in the test-seam file.
     grep -q "daily-review.sh" "$CLAUDE_CRONTAB_FILE"

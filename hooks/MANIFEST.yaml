@@ -25,8 +25,11 @@ hooks:
     event: UserPromptSubmit
   - script: inject-session-state.sh
     event: UserPromptSubmit
-  - script: block-direct-main-commit.sh
-    event: PreToolUse
-    matcher: "Bash"
+  # block-direct-main-commit.sh is opt-in as of v1.1. Adds significant
+  # friction for solo developers who own and merge all their own work. The
+  # script + tests remain in the repo; uncomment this entry to re-enable.
+  # - script: block-direct-main-commit.sh
+  #   event: PreToolUse
+  #   matcher: "Bash"
   - script: require-verification-before-done.sh
     event: Stop

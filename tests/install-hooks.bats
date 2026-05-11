@@ -36,7 +36,7 @@ count_command_in_settings() {
     # All 7 manifest hook scripts are present
     for script in must-read-before-edit.sh log-read-paths.sh kill-switch.sh \
                   inject-mistakes-and-dod.sh inject-session-state.sh \
-                  block-direct-main-commit.sh require-verification-before-done.sh; do
+                  require-verification-before-done.sh; do
         run bash -c "jq -e --arg s \"$script\" '[.. | objects | select(.command? != null) | select(.command | contains(\$s))] | length > 0' \"$SETTINGS\""
         assert_success
     done
@@ -72,7 +72,7 @@ JSON
     # All 7 manifest hooks present
     for script in must-read-before-edit.sh log-read-paths.sh kill-switch.sh \
                   inject-mistakes-and-dod.sh inject-session-state.sh \
-                  block-direct-main-commit.sh require-verification-before-done.sh; do
+                  require-verification-before-done.sh; do
         run bash -c "jq -e --arg s \"$script\" '[.. | objects | select(.command? != null) | select(.command | contains(\$s))] | length == 1' \"$SETTINGS\""
         assert_success
     done
@@ -86,7 +86,7 @@ JSON
     # Each manifest hook should appear EXACTLY once
     for script in must-read-before-edit.sh log-read-paths.sh kill-switch.sh \
                   inject-mistakes-and-dod.sh inject-session-state.sh \
-                  block-direct-main-commit.sh require-verification-before-done.sh; do
+                  require-verification-before-done.sh; do
         count=$(jq --arg s "$script" \
             '[.. | objects | select(.command? != null) | select(.command | contains($s))] | length' \
             "$SETTINGS")
@@ -123,16 +123,22 @@ JSON
 }
 
 @test "install-hooks.sh merges into existing matcher group (no duplicate group)" {
-    # Pre-create a user hook on PreToolUse with matcher "Bash" — the same
-    # matcher our block-direct-main-commit hook uses.
+    # Pre-create a user hook on PreToolUse with matcher ".*" — the same
+    # matcher our kill-switch.sh hook uses. install-hooks.sh should merge
+    # kill-switch into the SAME ".*" group rather than creating a duplicate.
+    #
+    # (Pre-v1.1 this test used "Bash" matcher because block-direct-main-
+    # commit.sh shipped that. With that hook now opt-in, kill-switch is
+    # the next-best default-on hook with a non-trivial matcher to test
+    # the merge invariant against.)
     cat > "$SETTINGS" <<'JSON'
 {
   "hooks": {
     "PreToolUse": [
       {
-        "matcher": "Bash",
+        "matcher": ".*",
         "hooks": [
-          { "type": "command", "command": "USER_BASH_HOOK" }
+          { "type": "command", "command": "USER_WILDCARD_HOOK" }
         ]
       }
     ]
@@ -142,16 +148,16 @@ JSON
     run bash "$REPO_ROOT/scripts/install-hooks.sh"
     assert_success
 
-    # Exactly ONE PreToolUse group with matcher "Bash"
-    run jq -e '[.hooks.PreToolUse[] | select(.matcher == "Bash")] | length == 1' "$SETTINGS"
+    # Exactly ONE PreToolUse group with matcher ".*"
+    run jq -e '[.hooks.PreToolUse[] | select(.matcher == ".*")] | length == 1' "$SETTINGS"
     assert_success
 
-    # That group contains BOTH the user hook AND block-direct-main-commit
+    # That group contains BOTH the user hook AND kill-switch
     run jq -e '
         .hooks.PreToolUse[]
-        | select(.matcher == "Bash")
-        | (.hooks | any(.command == "USER_BASH_HOOK"))
-          and (.hooks | any(.command | contains("block-direct-main-commit.sh")))
+        | select(.matcher == ".*")
+        | (.hooks | any(.command == "USER_WILDCARD_HOOK"))
+          and (.hooks | any(.command | contains("kill-switch.sh")))
     ' "$SETTINGS"
     assert_success
 }
@@ -200,7 +206,8 @@ JSON
 @test "install-hooks.sh prints summary line with hook count" {
     run bash "$REPO_ROOT/scripts/install-hooks.sh"
     assert_success
-    assert_output --partial "Installed 7 hooks"
+    # 6 default-on hooks as of v1.1 (block-direct-main-commit.sh is opt-in).
+    assert_output --partial "Installed 6 hooks"
 }
 
 @test "install-hooks.sh groups UserPromptSubmit hooks together (one group, two hooks)" {
