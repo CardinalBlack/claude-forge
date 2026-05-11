@@ -22,3 +22,8 @@ setup() {
     [ -f "$REPO_ROOT/agents/task-debriefer.md" ]
     grep -q "^name: task-debriefer" "$REPO_ROOT/agents/task-debriefer.md"
 }
+
+@test "daily-auditor agent file exists" {
+    [ -f "$REPO_ROOT/agents/daily-auditor.md" ]
+    grep -q "^name: daily-auditor" "$REPO_ROOT/agents/daily-auditor.md"
+}
