@@ -21,9 +21,13 @@ PAYLOAD=$(cat -)
 TRANSCRIPT=$(jq -r '.transcript_path // empty' <<< "$PAYLOAD" 2>/dev/null) || exit 0
 [ -n "$TRANSCRIPT" ] && [ -f "$TRANSCRIPT" ] || exit 0
 
-# Last ~1KB ≈ the most recent assistant text. Look for done-claim markers.
-LAST_ASSISTANT=$(tail -c 1024 "$TRANSCRIPT" 2>/dev/null) || exit 0
-echo "$LAST_ASSISTANT" | grep -qiE 'all done|complete|verified|fixed|ready to|passes(\.|!|$)|tests pass' || exit 0
+# Last ~512 bytes ≈ closing paragraph(s) of the last assistant turn. Done-
+# claim markers are intentionally tight: too-broad ones (`complete`,
+# `verified`, `fixed`, `ready to`, `passes`) match conversational uses in the
+# body of UI/content work where no typecheck applies, firing the warning
+# spuriously. Tighter set keeps the signal high.
+LAST_ASSISTANT=$(tail -c 512 "$TRANSCRIPT" 2>/dev/null) || exit 0
+echo "$LAST_ASSISTANT" | grep -qiE 'all done|tests? pass(ed|ing)?|it works|shipped|ready to (merge|deploy|ship)|✅' || exit 0
 
 # Last ~8KB ≈ recent activity window. Look for verification markers.
 # Note: the "tests ... passed" branch uses [^[:cntrl:]]* (POSIX class, BSD-grep

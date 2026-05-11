@@ -76,18 +76,37 @@ All done!
 }
 
 @test "warns on each done-claim variant" {
-    for claim in "verified the change" "fixed the issue" "all that passes." "everything passes!" "tests pass" "implementation is complete" "ready to ship"; do
+    # Regex tightened in v1.1: dropped 'complete', 'verified', 'fixed', plain
+    # 'ready to' and bare 'passes' (all matched conversational uses in
+    # UI/content turns where no typecheck applies). Kept: high-signal markers
+    # only.
+    for claim in "all done!" "tests pass" "tests passed" "it works" "shipped" "ready to merge" "ready to deploy" "ready to ship" "✅ green across the board"; do
         transcript=$(write_transcript "Some neutral build text. $claim")
         payload=$(jq -nc --arg t "$transcript" '{transcript_path: $t}')
         run bash "$REPO_ROOT/hooks/require-verification-before-done.sh" <<< "$payload"
         assert_success
-        # "tests pass" is BOTH a done-claim AND a verification marker, so it
-        # short-circuits to silent. Skip its warning assertion.
-        if [ "$claim" = "tests pass" ]; then
-            [ -z "$output" ] || (echo "expected empty for 'tests pass'; got: $output" && false)
-        else
-            echo "$output" | grep -q "hookSpecificOutput" || (echo "no warning for variant: $claim; output: $output" && false)
-        fi
+        # "tests pass" / "tests passed" are BOTH done-claim AND verification
+        # marker, so they short-circuit to silent. Skip warning assertion.
+        case "$claim" in
+            "tests pass"|"tests passed")
+                [ -z "$output" ] || (echo "expected empty for '$claim'; got: $output" && false)
+                ;;
+            *)
+                echo "$output" | grep -q "hookSpecificOutput" || (echo "no warning for variant: $claim; output: $output" && false)
+                ;;
+        esac
+    done
+}
+
+@test "does NOT warn on dropped conversational done-words (regression guard for v1.1 regex tightening)" {
+    # These all fired the old regex spuriously. The tightened regex must
+    # NOT fire on them.
+    for claim in "I verified the change is consistent" "fixed a typo earlier" "implementation is complete enough to discuss" "ready to discuss next steps" "this passes through middleware" "everything looks complete from here"; do
+        transcript=$(write_transcript "Some neutral build text. $claim")
+        payload=$(jq -nc --arg t "$transcript" '{transcript_path: $t}')
+        run bash "$REPO_ROOT/hooks/require-verification-before-done.sh" <<< "$payload"
+        assert_success
+        [ -z "$output" ] || (echo "expected silent for dropped variant: $claim; got: $output" && false)
     done
 }
 
