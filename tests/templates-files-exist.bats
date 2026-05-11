@@ -12,3 +12,8 @@ setup() {
     [ -f "$REPO_ROOT/templates/MISTAKES.md" ]
     grep -q "^# MISTAKES" "$REPO_ROOT/templates/MISTAKES.md"
 }
+
+@test "DEFINITION-OF-DONE.md template exists" {
+    [ -f "$REPO_ROOT/templates/DEFINITION-OF-DONE.md" ]
+    grep -q "^# Definition of Done" "$REPO_ROOT/templates/DEFINITION-OF-DONE.md"
+}
