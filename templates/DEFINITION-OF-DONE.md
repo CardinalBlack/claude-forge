@@ -20,3 +20,18 @@ A task is done when ALL of the following are true. If any row is NO, the task is
 ## "I'd defer X" is NOT "done"
 
 If you defer something to claim done, surface it explicitly. The user re-scopes, you don't.
+
+## Additional gates before `git push origin main`
+
+When the next action is pushing to `main` (which on most projects = a production deploy), the table above is necessary but not sufficient. ALL of these must also be green:
+
+| Check | Default required | Notes |
+|---|---|---|
+| Build raw stdout scanned (not just hook summary) | Yes | Grep for `parallel pages`, `Module not found`, `Type error`, `Failed to compile`, `Cannot find module`. Hook summaries have lied. |
+| Secret scan of `git diff origin/main..HEAD` clean | Yes | Patterns: `sk_`, `pk_live_`, `xox[bpoa]-`, JWT, `BEGIN PRIVATE KEY`, `Bearer [A-Za-z0-9_-]{20,}`. Inline secrets bypass filename hooks. |
+| Migration applied to DB before code depending on it ships | Yes | OR branch tagged `BLOCKED ON MIGRATION N` and NO push to main. |
+| Branch + diff sanity check | Yes | `git branch --show-current` correct; `git diff <base>..HEAD` shows only expected files; commit messages real. |
+| Rollback plan in one sentence | Yes | "If this breaks, rollback is `git revert <sha> && git push`, impact is [scope]." |
+| Stay attached for deploy | Yes (after push) | Watch deploy URL; if red, immediately `git revert <sha> && git push`. Don't fix-forward under deploy pressure. |
+
+If any row is red OR you're uncertain: **push to a feature branch instead.** Honesty about "I shouldn't push this to main" IS the safety net.
