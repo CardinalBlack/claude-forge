@@ -33,3 +33,19 @@ hooks:
   #   matcher: "Bash"
   - script: require-verification-before-done.sh
     event: Stop
+  # Injection-defense layers (v1.2). All five fail-open and never block the
+  # tool flow except where explicitly noted. CLI-only — none of these spend
+  # API tokens (Layers 2 + 5 invoke `claude --print` against the user's
+  # Max subscription; Layers 1 + 4 are pure bash/grep).
+  - script: scan-commit-diff.sh        # Layer 1: pre-commit diff scanner
+    event: PreToolUse
+    matcher: "Bash"
+  - script: summarize-commit-diff.sh   # Layer 2: plain-language pre-commit summary (claude -p)
+    event: PreToolUse
+    matcher: "Bash"
+  - script: scan-tool-output.sh        # Layer 4: scan Read/WebFetch results for injection markers
+    event: PostToolUse
+    matcher: "Read|WebFetch"
+  - script: risky-path-review.sh       # Layer 5: code-reviewer on RISKY-PATHS commits (claude -p)
+    event: PreToolUse
+    matcher: "Bash"
