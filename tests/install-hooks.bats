@@ -206,8 +206,12 @@ JSON
 @test "install-hooks.sh prints summary line with hook count" {
     run bash "$REPO_ROOT/scripts/install-hooks.sh"
     assert_success
-    # 6 default-on hooks as of v1.1 (block-direct-main-commit.sh is opt-in).
-    assert_output --partial "Installed 6 hooks"
+    # Hook count drifts as we add layers. Derive it from MANIFEST.yaml at
+    # test time rather than hard-coding — keeps the assertion useful as a
+    # smoke check (the line is printed and parses as an integer) without
+    # forcing a test-edit on every manifest change.
+    expected_count=$(yq '.hooks | length' "$REPO_ROOT/hooks/MANIFEST.yaml")
+    assert_output --partial "Installed ${expected_count} hooks"
 }
 
 @test "install-hooks.sh groups UserPromptSubmit hooks together (one group, two hooks)" {

@@ -145,6 +145,30 @@ for i in $(seq 0 $((COUNT - 1))); do
     mv "${TMP}.next" "$TMP"
 done
 
+# Post-merge dedupe pass: collapse duplicate matcher-groups (caused by a prior
+# version of this script and/or hand-edits that produced parallel groups with
+# the same matcher) and dedupe hook commands within each group. Without this,
+# every matched tool call fires the same hook N times — which is wasteful on
+# pure bash hooks and *expensive* on `claude --print` hooks (Layers 2 + 5).
+jq '
+def dedupe_groups:
+    if . == null then null
+    elif type == "array" then
+        group_by(.matcher // null)
+        | map({
+            matcher: (.[0].matcher // null),
+            hooks: (map(.hooks // [] | .[]) | unique_by(.command))
+          })
+        | map(
+            if (.matcher == null) then {hooks: .hooks}
+            else {matcher: .matcher, hooks: .hooks} end
+          )
+    else . end;
+
+.hooks //= {}
+| .hooks |= with_entries(.value |= dedupe_groups)
+' "$TMP" > "${TMP}.next" && mv "${TMP}.next" "$TMP"
+
 # Final atomic publish.
 mv "$TMP" "$SETTINGS"
 trap - EXIT  # disarm cleanup; $TMP no longer exists
