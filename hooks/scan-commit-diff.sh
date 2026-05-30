@@ -30,8 +30,9 @@ TOOL=$(jq -r '.tool_name // empty' <<< "$PAYLOAD" 2>/dev/null) || exit 0
 CMD=$(jq -r '.tool_input.command // empty' <<< "$PAYLOAD" 2>/dev/null) || exit 0
 [ -n "$CMD" ] || exit 0
 
-# Match `git commit` (whitespace or EOL after) — avoid commit-tree / commit-graph.
-echo "$CMD" | grep -qE 'git[[:space:]]+commit([[:space:]]|$)' || exit 0
+# Match any commit invocation (avoid commit-tree / commit-graph), including the
+# quiet-git.sh wrapper and `git -c <cfg> commit` — these used to bypass the scan.
+echo "$CMD" | grep -qE 'git([[:space:]]+-c[[:space:]]+[^[:space:]]+)*[[:space:]]+commit([[:space:]]|$)|quiet-git\.sh[[:space:]]+commit([[:space:]]|$)' || exit 0
 
 # Override tag in the commit command (typically in -m "..." text).
 echo "$CMD" | grep -q 'INJECTION-SCAN-OVERRIDE:' && exit 0
